@@ -2,23 +2,31 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+use App\Models\User;
 
-class AppServiceProvider extends ServiceProvider
+class AuthServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * O mapa de políticas da aplicação.
+     *
+     * @var array<class-string, class-string>
      */
-    public function register(): void
-    {
-        //
-    }
+    protected $policies = [
+        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
+    ];
 
     /**
-     * Bootstrap any application services.
+     * Registra quaisquer serviços de autenticação / autorização.
      */
     public function boot(): void
     {
-        //
+        $this->registerPolicies();
+
+        // Gate que permite apenas administradores gerenciarem produtos e categorias
+        Gate::define('manage-products-categories', function (User $user) {
+            return $user->role === 'admin';
+        });
     }
 }

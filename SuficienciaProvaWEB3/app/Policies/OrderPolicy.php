@@ -19,9 +19,8 @@ class OrderPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Order $order): bool
-    {
-        return false;
+    public function view(User $user, Order $order) {
+        return $user->id === $order->user_id || $user->role==='admin';
     }
 
     /**
@@ -35,17 +34,15 @@ class OrderPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Order $order): bool
-    {
-        return false;
+    public function update(User $user, Order $order) {
+        return $user->id === $order->user_id || $user->role==='admin';
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Order $order): bool
-    {
-        return false;
+    public function delete(User $user, Order $order) {
+        return $user->id === $order->user_id || $user->role==='admin';
     }
 
     /**

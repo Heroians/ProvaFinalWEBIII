@@ -13,8 +13,11 @@ class IsAdmin
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle($request, Closure $next)
     {
+        if (!$request->user() || $request->user()->role !== 'admin') {
+            return response()->json(['status'=>false,'message'=>'Forbidden'],403);
+        }
         return $next($request);
     }
 }
