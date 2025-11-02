@@ -4,46 +4,48 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Order;
 
 class OrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        // Mostra apenas pedidos do usuário autenticado
+        return $request->user()->orders()->with('products')->get();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    public function show(Order $order)
+    {
+        $this->authorize('view', $order);
+        return $order->load('products');
+    }
+
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'products' => 'required|array',
+            'products.*' => 'exists:products,id',
+        ]);
+
+        $order = $request->user()->orders()->create();
+
+        $order->products()->attach($data['products']);
+
+        return response()->json($order->load('products'), 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(Request $request, Order $order)
     {
-        //
+        $this->authorize('update', $order);
+        // Atualização de status, por exemplo
+        $order->update($request->only('status'));
+        return $order;
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy(Order $order)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $this->authorize('delete', $order);
+        $order->delete();
+        return response()->json(['message' => 'Pedido removido com sucesso']);
     }
 }

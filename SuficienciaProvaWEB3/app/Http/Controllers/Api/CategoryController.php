@@ -4,46 +4,46 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Category;
+use Illuminate\Support\Facades\Gate;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return Category::all();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    public function show(Category $category)
+    {
+        return $category;
+    }
+
     public function store(Request $request)
     {
-        //
+        Gate::authorize('manage-categories');
+
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        return Category::create($data);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(Request $request, Category $category)
     {
-        //
+        Gate::authorize('manage-categories');
+
+        $category->update($request->all());
+        return $category;
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy(Category $category)
     {
-        //
-    }
+        Gate::authorize('manage-categories');
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $category->delete();
+        return response()->json(['message' => 'Categoria removida com sucesso']);
     }
 }

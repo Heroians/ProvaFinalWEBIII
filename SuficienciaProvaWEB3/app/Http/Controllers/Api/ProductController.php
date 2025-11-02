@@ -4,46 +4,47 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Product;
+use Illuminate\Support\Facades\Gate;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return Product::with('category')->get();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    public function show(Product $product)
+    {
+        return $product->load('category');
+    }
+
     public function store(Request $request)
     {
-        //
+        Gate::authorize('manage-products');
+
+        $data = $request->validate([
+            'name' => 'required|string',
+            'price' => 'required|numeric',
+            'category_id' => 'required|exists:categories,id',
+        ]);
+
+        return Product::create($data);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(Request $request, Product $product)
     {
-        //
+        Gate::authorize('manage-products');
+
+        $product->update($request->all());
+        return $product;
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy(Product $product)
     {
-        //
-    }
+        Gate::authorize('manage-products');
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $product->delete();
+        return response()->json(['message' => 'Produto removido com sucesso']);
     }
 }

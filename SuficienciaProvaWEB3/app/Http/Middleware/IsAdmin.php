@@ -10,14 +10,13 @@ class IsAdmin
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->user() || $request->user()->role !== 'admin') {
-            return response()->json(['status'=>false,'message'=>'Forbidden'],403);
+        if ($request->user() && $request->user()->role === 'admin') {
+            return $next($request);
         }
-        return $next($request);
+
+        return response()->json(['message' => 'Acesso negado. Somente administradores.'], 403);
     }
 }
